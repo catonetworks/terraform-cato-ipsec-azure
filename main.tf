@@ -149,3 +149,36 @@ resource "cato_ipsec_site" "ipsec-site" {
     }
   }
 }
+
+# Update Cato ipsec site Init to DH2 to match Azure defaults
+
+resource "null_resource" "update_dh_group" {
+  depends_on = [cato_ipsec_site.ipsec-site]
+
+  triggers = {
+    site_id = cato_ipsec_site.ipsec-site.id
+  }
+
+  provisioner "local-exec" {
+    command = <<EOF
+curl -k -X POST \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "x-API-Key: ${var.token}" \
+  '${var.baseurl}' \
+  --data '{
+    "query": "mutation siteUpdateIpsecIkeV2SiteGeneralDetails($siteId: ID!, $updateIpsecIkeV2SiteGeneralDetailsInput: UpdateIpsecIkeV2SiteGeneralDetailsInput!, $accountId: ID!) { site(accountId: $accountId) { updateIpsecIkeV2SiteGeneralDetails(siteId: $siteId, input: $updateIpsecIkeV2SiteGeneralDetailsInput) { siteId localId } } }",
+    "variables": {
+      "accountId": ${var.account_id},
+      "siteId": "${cato_ipsec_site.ipsec-site.id}",
+      "updateIpsecIkeV2SiteGeneralDetailsInput": {
+        "initMessage": {
+          "dhGroup": "DH_2_MODP1024"
+        }
+      }
+    },
+    "operationName": "siteUpdateIpsecIkeV2SiteGeneralDetails"
+  }'
+EOF
+  }
+}
