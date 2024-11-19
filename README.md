@@ -98,7 +98,7 @@ module "ipsec-azure" {
 
 ## Alloacted IP Reference
 
-You must first [Allocating two IPs](https://support.catonetworks.com/hc/en-us/articles/4413273467153-Allocating-IP-Addresses-for-the-Account), and retrieve the IPs, and IDs to be used in the module. Use the [Cato CLI](https://github.com/catonetworks/cato-cli) to retrieve the IPs and IDs for an account.
+You must first [allocate two Cato IPs](https://support.catonetworks.com/hc/en-us/articles/4413273467153-Allocating-IP-Addresses-for-the-Account), and retrieve the IPs, and IDs to be used in the module. Use the [Cato CLI](https://github.com/catonetworks/cato-cli) to retrieve the IPs and IDs for an account.
 
 ```bash
 $ pip3 install catocli
