@@ -167,12 +167,12 @@ variable "upstream_bw" {
 
 variable "primary_connection_shared_key" {
   description = "Primary connection shared key"
-  type        = number
+  type        = string
   default     = null
 }
 
 variable "secondary_connection_shared_key" {
   description = "Secondary connection shared key"
-  type        = number
+  type        = string
   default     = null
 }
