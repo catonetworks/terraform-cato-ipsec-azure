@@ -4,3 +4,8 @@
 
 ### Features
 - Initial commit 
+
+## 0.0.4 (2025-05-08)
+
+### Features
+- Added optional license resource and inputs used for commercial site deployments

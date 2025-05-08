@@ -176,3 +176,15 @@ variable "secondary_connection_shared_key" {
   type        = string
   default     = null
 }
+
+variable "license_id" {
+  description = "The license ID for the Cato vSocket of license type CATO_SITE, CATO_SSE_SITE, CATO_PB, CATO_PB_SSE.  Example License ID value: 'abcde123-abcd-1234-abcd-abcde1234567'.  Note that licenses are for commercial accounts, and not supported for trial accounts."
+  type        = string
+  default     = null
+}
+
+variable "license_bw" {
+  description = "The license bandwidth number for the cato site, specifying bandwidth ONLY applies for pooled licenses.  For a standard site license that is not pooled, leave this value null. Must be a number greater than 0 and an increment of 10."
+  type        = string
+  default     = null
+}

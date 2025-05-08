@@ -1,17 +1,4 @@
-# Configure the Cato Provider
-provider "cato" {
-  baseurl    = var.baseurl
-  token      = var.token
-  account_id = var.account_id
-}
-
-# Configure the Microsoft Azure Provider
-provider "azurerm" {
-  features {}
-}
-
 # Create 2 allocated IPs in Cato Management Application(CMA), Get IDs
-
 # Public IP for the VPN Gateway
 resource "azurerm_public_ip" "vpn_gateway_pip" {
   name                = "${var.vpn_gateway_name}-publicip"
@@ -84,7 +71,7 @@ resource "azurerm_virtual_network_gateway_connection" "cato_connection_primary" 
   virtual_network_gateway_id = azurerm_virtual_network_gateway.vpn_gateway.id
   local_network_gateway_id   = azurerm_local_network_gateway.cato_pop_primary.id
 
-  shared_key = var.primary_connection_shared_key==null ? random_password.shared_key_primary.result : var.primary_connection_shared_key
+  shared_key = var.primary_connection_shared_key == null ? random_password.shared_key_primary.result : var.primary_connection_shared_key
 }
 
 resource "azurerm_virtual_network_gateway_connection" "cato_connection_secondary" {
@@ -96,7 +83,7 @@ resource "azurerm_virtual_network_gateway_connection" "cato_connection_secondary
   virtual_network_gateway_id = azurerm_virtual_network_gateway.vpn_gateway.id
   local_network_gateway_id   = azurerm_local_network_gateway.cato_pop_secondary.id
 
-  shared_key = var.secondary_connection_shared_key==null ? random_password.shared_key_secondary.result : var.secondary_connection_shared_key
+  shared_key = var.secondary_connection_shared_key == null ? random_password.shared_key_secondary.result : var.secondary_connection_shared_key
 }
 
 
@@ -117,7 +104,7 @@ resource "cato_ipsec_site" "ipsec-site" {
           public_site_ip  = azurerm_public_ip.vpn_gateway_pip.ip_address
           private_cato_ip = var.primary_private_cato_ip
           private_site_ip = var.primary_private_site_ip
-          psk             = var.primary_connection_shared_key==null ? random_password.shared_key_primary.result : var.primary_connection_shared_key
+          psk             = var.primary_connection_shared_key == null ? random_password.shared_key_primary.result : var.primary_connection_shared_key
           last_mile_bw = {
             downstream = var.downstream_bw
             upstream   = var.upstream_bw
@@ -134,7 +121,7 @@ resource "cato_ipsec_site" "ipsec-site" {
           public_site_ip  = azurerm_public_ip.vpn_gateway_pip.ip_address
           private_cato_ip = var.secondary_private_cato_ip
           private_site_ip = var.secondary_private_site_ip
-          psk             = var.secondary_connection_shared_key==null ? random_password.shared_key_secondary.result : var.secondary_connection_shared_key
+          psk             = var.secondary_connection_shared_key == null ? random_password.shared_key_secondary.result : var.secondary_connection_shared_key
           last_mile_bw = {
             downstream = var.downstream_bw
             upstream   = var.upstream_bw
@@ -176,4 +163,12 @@ curl -k -X POST \
   }'
 EOF
   }
+}
+
+resource "cato_license" "license" {
+  depends_on = [cato_ipsec_site.ipsec-site]
+  count      = var.license_id == null ? 0 : 1
+  site_id    = cato_ipsec_site.azure-site.id
+  license_id = var.license_id
+  bw         = var.license_bw == null ? null : var.license_bw
 }
