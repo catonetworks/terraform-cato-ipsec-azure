@@ -71,6 +71,8 @@ provider "cato" {
 
 module "ipsec-azure" {
   source                      = "catonetworks/ipsec-azure/cato"
+  token                       = var.cato_token
+  account_id                  = var.account_id
   az_location                 = "East US"
   resource_group_name         = "your_resource_group_name"
   vnet_name                   = "your_vnet_name"
