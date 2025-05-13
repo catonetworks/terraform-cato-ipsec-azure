@@ -1,3 +1,20 @@
+## Cato provider variables
+variable "baseurl" {
+  description = "Cato API base URL"
+  type        = string
+  default     = "https://api.catonetworks.com/api/v1/graphql2"
+}
+
+variable "token" {
+  description = "Cato API token"
+  type        = string
+}
+
+variable "account_id" {
+  description = "Cato account ID"
+  type        = number
+}
+
 # Azure Variables
 variable "resource_group_name" {
   description = "The name of the resource group"

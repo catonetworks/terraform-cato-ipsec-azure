@@ -10,7 +10,7 @@
 ### Features
 - Added optional license resource and inputs used for commercial site deployments
 
-## 0.0.7 (2025-05-13)
+## 0.0.8 (2025-05-13)
 
 ### Features
-- Purging legacy variables for cato_token, account_id and baseurl
+- Adding variables for cato_token, account_id and baseurl for custom calls
