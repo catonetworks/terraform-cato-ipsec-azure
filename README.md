@@ -71,11 +71,9 @@ provider "cato" {
 
 module "ipsec-azure" {
   source                      = "catonetworks/ipsec-azure/cato"
-  token                       = var.cato_token
-  account_id                  = var.account_id
   az_location                 = "East US"
-  resource_group_name         = replace(replace("${var.site_name}-VNET", "-", ""), " ", "_")
-  vnet_name                   = replace(replace("${var.site_name}-vsNet", "-", "_"), " ", "_")
+  resource_group_name         = "your_resource_group_name"
+  vnet_name                   = "your_vnet_name"
   gateway_subnet_id           = azurerm_subnet.subnet.id
   vpn_gateway_name            = "my-azure-vpn-gateway"
   local_network_gateway_name  = "cato-local-network-gateway"
