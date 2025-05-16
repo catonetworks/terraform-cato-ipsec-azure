@@ -168,7 +168,7 @@ EOF
 resource "cato_license" "license" {
   depends_on = [cato_ipsec_site.ipsec-site]
   count      = var.license_id == null ? 0 : 1
-  site_id    = cato_ipsec_site.azure-site.id
+  site_id    = cato_ipsec_site.ipsec-site.id
   license_id = var.license_id
   bw         = var.license_bw == null ? null : var.license_bw
 }

@@ -10,8 +10,14 @@
 ### Features
 - Added optional license resource and inputs used for commercial site deployments
 
-## 0.0.9 (2025-05-13)
+## 0.0.10 (2025-05-13)
 
 ### Features
 - Adding variables for cato_token, account_id and baseurl for custom calls
 - Updating README to reflect correct variables
+- Corrected license site syntax
+
+## 0.0.11 (2025-05-15)
+
+### Features
+- Fixed variable name for ipsec-site
