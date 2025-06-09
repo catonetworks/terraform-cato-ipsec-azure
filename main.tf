@@ -279,43 +279,33 @@ resource "null_resource" "update_ipsec_site_details-bgp" {
     site_id = cato_ipsec_site.ipsec-site.id
   }
 
-  provisioner "local-exec" {
-    command = <<EOF
-curl -k -X POST \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  -H "x-API-Key: ${var.token}" \
-  '${var.baseurl}' \
-  --data '{
-    "query": "mutation siteUpdateIpsecIkeV2SiteGeneralDetails($siteId: ID!, $updateIpsecIkeV2SiteGeneralDetailsInput: UpdateIpsecIkeV2SiteGeneralDetailsInput!, $accountId: ID!) { site(accountId: $accountId) { updateIpsecIkeV2SiteGeneralDetails(siteId: $siteId, input: $updateIpsecIkeV2SiteGeneralDetailsInput) { siteId localId } } }",
-    "variables": {
-      "accountId": ${var.account_id},
-      "siteId": "${cato_ipsec_site.ipsec-site.id}",
-      "connectionMode": "${var.cato_connectionMode}",
-      "identificationType": "${var.cato_identificationType}",
-      "updateIpsecIkeV2SiteGeneralDetailsInput": {
-        "initMessage": {
-          "dhGroup": "${var.cato_initMessage_dhGroup}",
-          "cipher": "${var.cato_initMessage_cipher}",
-          "integrity": "${var.cato_initMessage_integrity}",
-          "prf":"${var.cato_initMessage_prf}" 
-        },
-        "authMessage": {
-          "dhGroup": "${var.cato_authMessage_dhGroup}",
-          "cipher": "${var.cato_authMessage_cipher}",
-          "integrity": "${var.cato_authMessage_integrity}",
-        }
-      }
-    },
-    "operationName": "siteUpdateIpsecIkeV2SiteGeneralDetails"
-  }'
-EOF
+ provisioner "local-exec" {
+    # This command uses a 'heredoc' to pipe the rendered JSON template
+    # directly into curl's standard input.
+    # The '--data @-' argument tells curl to read the POST data from stdin.
+    command = <<EOT
+cat <<'PAYLOAD' | curl -v -k -X POST -H 'Accept: application/json' -H 'Content-Type: application/json' -H 'x-API-Key: ${var.token}' '${var.baseurl}' --data @-
+${templatefile("${path.module}/templates/update_site_payload.json.tftpl", {
+      account_id      = var.account_id
+      site_id         = cato_ipsec_site.ipsec-site.id
+      connection_mode = var.cato_connectionMode
+      init_dh_group   = var.cato_initMessage_dhGroup
+      init_cipher     = var.cato_initMessage_cipher
+      init_integrity  = var.cato_initMessage_integrity
+      init_prf        = var.cato_initMessage_prf
+      auth_dh_group   = var.cato_authMessage_dhGroup
+      auth_cipher     = var.cato_authMessage_cipher
+      auth_integrity  = var.cato_authMessage_integrity
+    })}
+PAYLOAD
+EOT
   }
 }
 
 resource "null_resource" "update_ipsec_site_details-nobgp" {
   depends_on = [cato_ipsec_site.ipsec-site]
   count      = var.azure_enable_bgp ? 0 : 1
+
   lifecycle {
     ignore_changes = all
   }
@@ -324,40 +314,27 @@ resource "null_resource" "update_ipsec_site_details-nobgp" {
   }
 
   provisioner "local-exec" {
-    command = <<EOF
-curl -k -X POST \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  -H "x-API-Key: ${var.token}" \
-  '${var.baseurl}' \
-  --data '{
-    "query": "mutation siteUpdateIpsecIkeV2SiteGeneralDetails($siteId: ID!, $updateIpsecIkeV2SiteGeneralDetailsInput: UpdateIpsecIkeV2SiteGeneralDetailsInput!, $accountId: ID!) { site(accountId: $accountId) { updateIpsecIkeV2SiteGeneralDetails(siteId: $siteId, input: $updateIpsecIkeV2SiteGeneralDetailsInput) { siteId localId } } }",
-    "variables": {
-      "accountId": ${var.account_id},
-      "siteId": "${cato_ipsec_site.ipsec-site.id}",
-      "connectionMode": "${var.cato_connectionMode}",
-      "identificationType": "${var.cato_identificationType}",
-      "updateIpsecIkeV2SiteGeneralDetailsInput": {
-        "initMessage": {
-          "dhGroup": "${var.cato_initMessage_dhGroup}",
-          "cipher": "${var.cato_initMessage_cipher}",
-          "integrity": "${var.cato_initMessage_integrity}",
-          "prf":"${var.cato_initMessage_prf}" 
-        },
-        "authMessage": {
-          "dhGroup": "${var.cato_authMessage_dhGroup}",
-          "cipher": "${var.cato_authMessage_cipher}",
-          "integrity": "${var.cato_authMessage_integrity}",
-        }
-        "networkRanges": "[${var.azure_local_networks}]"
-      }
-    },
-    "operationName": "siteUpdateIpsecIkeV2SiteGeneralDetails"
-  }'
-EOF
+    # Using the same robust, single-quoted heredoc pattern as before
+    command = <<EOT
+cat <<'PAYLOAD' | curl -v -k -X POST -H 'Accept: application/json' -H 'Content-Type: application/json' -H 'x-API-Key: ${var.token}' '${var.baseurl}' --data @-
+${templatefile("${path.module}/templates/update_site_payload_nobgp.json.tftpl", {
+      account_id           = var.account_id
+      site_id              = cato_ipsec_site.ipsec-site.id
+      connection_mode      = var.cato_connectionMode
+      # Here is the magic: jsonencode converts the Terraform list to a JSON array string
+      network_ranges_json  = jsonencode(var.azure_local_networks)
+      init_dh_group        = var.cato_initMessage_dhGroup
+      init_cipher          = var.cato_initMessage_cipher
+      init_integrity       = var.cato_initMessage_integrity
+      init_prf             = var.cato_initMessage_prf
+      auth_dh_group        = var.cato_authMessage_dhGroup
+      auth_cipher          = var.cato_authMessage_cipher
+      auth_integrity       = var.cato_authMessage_integrity
+    })}
+PAYLOAD
+EOT
   }
 }
-
 
 
 
