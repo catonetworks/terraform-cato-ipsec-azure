@@ -17,7 +17,7 @@ variable "account_id" {
 
 # Azure Variables
 variable "azure_resource_group_name" {
-  description = "The name of the resource group"
+  description = "The name of the Azure resource group to build / use"
   type        = string
 }
 
@@ -27,13 +27,13 @@ variable "az_location" {
 }
 
 variable "azure_enable_activeactive" {
-  description = "Whether to Enable Active/Active"
+  description = "Whether to Enable Active/Active - Default & Recommendation is true (Enabled)"
   type        = bool
   default     = true
 }
 
 variable "azure_vnet_name" {
-  description = "The name of the Virtual Network"
+  description = "The name of the Virtual Network to Build / Use"
   type        = string
   default     = null
 }
@@ -49,122 +49,137 @@ variable "build_azure_vng_vnet" {
 }
 
 variable "azure_local_networks" {
-  description = "(Optional) List of Networks on the Azure side (if BGP is disabled)"
+  description = <<EOF
+  (Optional) List of Networks on the Azure side (if BGP is disabled)
+  Examples: 
+  ["servers:10.0.0.0/24","devices:10.1.0.0/24"]
+  EOF
   type        = list(string)
   default     = null
 }
 
 variable "azure_vng_vnet_range" {
-  description = "If we build a new VNET for the Virtual network gateway, we will need a cidr"
+  description = "CIDR range for the Virtual Network, if we're building it."
   type        = string
   default     = null
 }
 
 variable "azure_vng_subnet_range" {
-  description = "If we build a new VNET for the virtual network gateway, we will build a subnet and need a CIDR for the subnet"
+  description = "CIDR range for the Subnet in the Virtual Network, if we're building it."
   type        = string
   default     = null
 }
 
 variable "azure_gateway_subnet_id" {
-  description = "The id of the gateway subnet"
+  description = "The id of the gateway subnet, if pre-existing"
   type        = string
   default     = null
 }
 
 
 variable "azure_ipsec_version" {
-  description = "Version of IPSec to Use, valid responses are 'IKEv1' and 'IKEv2'."
+  description = <<EOF
+  Version of IPSec to Use, valid responses are 'IKEv1' and 'IKEv2'. 
+  Recommended Value is IKEv2 
+  Default is IKEv2
+  EOF
   type        = string
   default     = "IKEv2"
 }
 
 variable "azure_primary_connection_ike_encryption" {
-  description = "The IKE encryption algorithm (Phase 1)."
+  description = "The IKE encryption algorithm (Phase 1). Default: AES256"
   type        = string
   default     = "AES256"
 }
 
 variable "azure_primary_connection_ike_integrity" {
-  description = "The IKE integrity algorithm (Phase 1)."
+  description = "The IKE integrity algorithm (Phase 1). Default: SHA256"
   type        = string
   default     = "SHA256"
 }
 
 variable "azure_primary_connection_dh_group" {
-  description = "The Diffie-Hellman Group used in IKE Phase 1."
+  description = "The Diffie-Hellman Group used in IKE Phase 1. Default: DHGroup14 (Because Azure doesn't support DHGroup15)"
   type        = string
   default     = "DHGroup14"
 }
 
 variable "azure_primary_connection_ipsec_encryption" {
-  description = "The IPsec encryption algorithm (Phase 2)."
+  description = "The IPsec encryption algorithm (Phase 2). Default: AES256"
   type        = string
   default     = "AES256"
 }
 
 variable "azure_primary_connection_ipsec_integrity" {
-  description = "The IPsec integrity algorithm (Phase 2)."
+  description = "The IPsec integrity algorithm (Phase 2). Default: SHA256"
   type        = string
   default     = "SHA256"
 }
 
 variable "azure_primary_connection_pfs_group" {
-  description = "The Perfect Forward Secrecy (PFS) group used in IPsec Phase 2."
+  description = "The Perfect Forward Secrecy (PFS) group used in IPsec Phase 2. Default: PFS14 (Because Azure doesn't support PFS15)"
   type        = string
   default     = "PFS14"
 }
 
 variable "azure_primary_connection_sa_lifetime" {
-  description = "The Security Association (SA) lifetime in seconds."
+  description = "The Security Association (SA) lifetime in seconds.  Default: 19800"
   type        = number
   default     = 19800
 }
 
 variable "azure_secondary_connection_ike_encryption" {
-  description = "The IKE encryption algorithm (Phase 1) for the secondary connection."
+  description = "The IKE encryption algorithm (Phase 1) for the secondary connection. Default: AES256"
   type        = string
   default     = "AES256"
 }
 
 variable "azure_secondary_connection_ike_integrity" {
-  description = "The IKE integrity algorithm (Phase 1) for the secondary connection."
+  description = "The IKE integrity algorithm (Phase 1) for the secondary connection. Default: SHA256"
   type        = string
   default     = "SHA256"
 }
 
 variable "azure_secondary_connection_dh_group" {
-  description = "The Diffie-Hellman Group used in IKE Phase 1 for the secondary connection."
+  description = "The Diffie-Hellman Group used in IKE Phase 1 for the secondary connection. Default: DHGroup14 (Because Azure doesn't support DHGroup15)"
   type        = string
   default     = "DHGroup14"
 }
 
 variable "azure_secondary_connection_ipsec_encryption" {
-  description = "The IPsec encryption algorithm (Phase 2) for the secondary connection."
+  description = "The IPsec encryption algorithm (Phase 2) for the secondary connection. Default: AES256"
   type        = string
   default     = "AES256"
 }
 
 variable "azure_secondary_connection_ipsec_integrity" {
-  description = "The IPsec integrity algorithm (Phase 2) for the secondary connection."
+  description = "The IPsec integrity algorithm (Phase 2) for the secondary connection. Default: SHA256"
   type        = string
   default     = "SHA256"
 }
 
 variable "azure_secondary_connection_pfs_group" {
-  description = "The Perfect Forward Secrecy (PFS) group used in IPsec Phase 2 for the secondary connection."
+  description = "The Perfect Forward Secrecy (PFS) group used in IPsec Phase 2 for the secondary connection. Default: PFS14 (Because Azure doesn't support PFS15)"
   type        = string
   default     = "PFS14"
 }
 
 variable "azure_secondary_connection_sa_lifetime" {
-  description = "The Security Association (SA) lifetime in seconds for the secondary connection."
+  description = "The Security Association (SA) lifetime in seconds for the secondary connection. Default: 19800"
   type        = number
   default     = 19800
 }
 
 variable "tags" {
-  description = "A Set of Keys & Values to describe the infrastructure"
+  description = <<EOF
+  A map of Keys & Values to describe the infrastructure
+  Example: 
+  { 
+  terraform = "true"
+  built_by = "Your Name"
+  }
+  EOF
   type        = map(string)
   default     = {}
 }
@@ -188,15 +203,6 @@ variable "cato_bgp_asn" {
   type        = number
   default     = 65001
 }
-
-# variable "azure_bgp_peering_address" {
-#   description = <<EOT
-#   The BGP peering IP address for the Azure VPN Gateway (APIPA). Required if azure_enable_bgp is true.
-#   The valid range for the reserved APIPA address in Azure Public is from 169.254.21.0 to 169.254.22.255.
-#   EOT
-#   type        = string
-#   default     = "169.254.21.254"
-# }
 
 variable "cato_primary_bgp_metric" {
   description = "Metric for the primary Cato BGP peer to influence route preference."
@@ -309,8 +315,6 @@ variable "cato_secondary_bgp_bfd_multiplier" {
 }
 
 # Cato Variables
-
-
 variable "primary_cato_pop_ip" {
   description = "The IP address of the primary Cato POP"
   type        = string
@@ -321,7 +325,6 @@ variable "secondary_cato_pop_ip" {
   type        = string
 }
 
-# Cato Variables
 variable "site_name" {
   description = "Name of the IPSec site"
   type        = string
@@ -357,7 +360,10 @@ variable "site_location" {
 }
 
 variable "primary_private_cato_ip" {
-  description = "Private IP address of the Cato side for the primary tunnel"
+  description = <<EOF
+  The BGP peering IP address for the CatoPOP (APIPA). Required if azure_enable_bgp is true.
+  The valid range for the reserved APIPA address in Azure Public is from 169.254.21.0 to 169.254.22.255.
+  EOF
   type        = string
   default     = null
 }
@@ -374,13 +380,8 @@ variable "primary_private_site_ip" {
 
 variable "primary_destination_type" {
   description = "The destination type of the IPsec tunnel"
-  # validation {
-  #   condition     = var.primary_destination_type == null || contains(["FQDN","IPv4"], var.primary_destination_type)
-  #   error_message = "The site_type variable must be one of 'FQDN','IPv4'."
-  # }
-  # nullable    = true
-  type    = string
-  default = null
+  type        = string
+  default     = null
 }
 
 variable "primary_pop_location_id" {
@@ -390,7 +391,10 @@ variable "primary_pop_location_id" {
 }
 
 variable "secondary_private_cato_ip" {
-  description = "Private IP address of the Cato side for the secondary tunnel"
+  description = <<EOF
+  The BGP peering IP address for the CatoPOP (APIPA). Required if azure_enable_bgp is true.
+  The valid range for the reserved APIPA address in Azure Public is from 169.254.21.0 to 169.254.22.255.
+  EOF
   type        = string
   default     = null
 }
@@ -406,13 +410,8 @@ variable "secondary_private_site_ip" {
 
 variable "secondary_destination_type" {
   description = "The destination type of the IPsec tunnel"
-  # validation {
-  #   condition     = var.secondary_destination_type == null || contains(["FQDN","IPv4"], var.secondary_destination_type)
-  #   error_message = "The destination_type variable must be one of 'FQDN','IPv4'."
-  # }
-  # nullable    = true
-  type    = string
-  default = null
+  type        = string
+  default     = null
 }
 
 variable "secondary_pop_location_id" {
