@@ -8,56 +8,16 @@ Terraform module which creates an IPsec site in the Cato Management Application 
 
 ## Usage
 
-<details>
-<summary>Required Azure resources for IPSec module</summary>
-
-```hcl
-provider "azurerm" {
-  features {}
-}
-
-resource "azurerm_resource_group" "azure-rg" {
-  location = var.az_location
-  name     = replace(replace("Your-site-name-VNET", "-", ""), " ", "_")
-}
-
-resource "azurerm_availability_set" "availability-set" {
-  location                     = var.az_location
-  name                         = replace(replace("Your-site-name-availabilitySet", "-", "_"), " ", "_")
-  platform_fault_domain_count  = 2
-  platform_update_domain_count = 2
-  resource_group_name          = azurerm_resource_group.azure-rg.name
-  depends_on = [
-    azurerm_resource_group.azure-rg
-  ]
-}
-
-## Create Network and Subnets
-resource "azurerm_virtual_network" "vnet" {
-  address_space       = [var.native_network_range]
-  location            = var.az_location
-  name                = replace(replace("Your-site-name-vsNet", "-", "_"), " ", "_")
-  resource_group_name = azurerm_resource_group.azure-rg.name
-  depends_on = [
-    azurerm_resource_group.azure-rg
-  ]
-}
-
-resource "azurerm_subnet" "subnet" {
-  address_prefixes     = [var.native_network_range]
-  name                 = "GatewaySubnet"
-  resource_group_name  = azurerm_resource_group.azure-rg.name
-  virtual_network_name = replace(replace("Your-site-name-vsNet", "-", "_"), " ", "_")
-  depends_on = [
-    azurerm_virtual_network.vnet
-  ]
-}
-```
-</details>
-
 Example module usage:
 
-```
+```hcl
+variable "baseurl" {}
+variable "token" {}
+variable "account_id" {}
+variable "azure_subscription_id" {
+  default = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+}
+
 provider "azurerm" {
   subscription_id = var.azure_subscription_id
   features {}
@@ -69,34 +29,121 @@ provider "cato" {
   account_id = var.account_id
 }
 
-module "ipsec-azure" {
-  source                      = "catonetworks/ipsec-azure/cato"
-  token                       = var.cato_token
-  account_id                  = var.account_id
-  az_location                 = "East US"
-  resource_group_name         = "your_resource_group_name"
-  vnet_name                   = "your_vnet_name"
-  gateway_subnet_id           = azurerm_subnet.subnet.id
-  vpn_gateway_name            = "my-azure-vpn-gateway"
-  local_network_gateway_name  = "cato-local-network-gateway"
-  site_name                   = "My-Azure-Cato-IPSec-Site-8"
-  site_description            = "TestTFAzureIPSec8"
-  native_network_range        = "172.16.0.0/24"
-  primary_private_cato_ip     = "169.1.1.1"
-  primary_private_site_ip     = "169.1.1.2"
-  primary_cato_pop_ip         = "11.22.33.44" # Your Primary Cato IP
-  primary_public_cato_ip_id   = "31511" # Your Primary Cato IP ID
-  secondary_private_cato_ip   = "169.2.1.1"
-  secondary_private_site_ip   = "169.2.1.2"
-  secondary_cato_pop_ip       = "11.22.33.55" # Your Secondary Cato IP ID
-  secondary_public_cato_ip_id = "31512" # Your Secondary Cato IP ID
-  downstream_bw               = 100
-  upstream_bw                 = 100
+#Example to Build with BGP (Recommended Configuration)
+module "ipsec-azure-bgp" {
+  source                     = "catonetworks/ipsec-azure/cato"
+  token                      = var.token #Cato Token
+  account_id                 = var.account_id
+  az_location                = "<Region>" #e.g. "Central US" 
+  
+  # Whether or not the module should build the resource group.
+  build_azure_resource_group = true 
+  
+  # Whether or not the module should build the virtual network. If the vNet Already exists,
+  # Provide the name with azure_vnet_name = "<vnet-name>"
+  # if the Vnet Exists, we assume that there is already a subnet defined with the name of 
+  # GatewaySubnet as required by Azure.
+  build_azure_vng_vnet       = true 
+  
+  azure_resource_group_name  = "Your-RG-Name-Here"
+  azure_vng_vnet_range       = "10.0.0.0/24"
+  azure_vng_subnet_range     = "10.0.0.0/24"
+  site_name                  = "My-Azure-Cato-IPSec-Site-bgp"
+  site_description           = "My Azure Cato IPSEC Site with BGP"
+  native_network_range       = "10.0.0.0/23"
+  
+  # BGP Peering Addresses are required to be within the range of 169.254.21.0 
+  # through 169.254.22.255, per Azure Requirements.
+
+  # BGP Peering Addresses - Primary 
+  primary_private_cato_ip    = "169.254.21.2"
+  primary_private_site_ip    = "169.254.21.1"
+  
+  # BGP Peering Addresses - Secondary
+  secondary_private_cato_ip  = "169.254.22.2"
+  secondary_private_site_ip  = "169.254.22.1"
+
+  # Allocated IPs used for this connection, obtained via CMA
+  # See https://support.catonetworks.com/hc/en-us/articles/4413273467153-Allocating-IP-Addresses-for-the-Account
+  primary_cato_pop_ip        = "x.x.x.x" # Your Primary Cato IP
+  secondary_cato_pop_ip      = "y.y.y.y" # Your Secondary Cato IP ID
+
+  downstream_bw              = 100
+  upstream_bw                = 100
+  
+  # BGP is enabled via bool (true/false below). 
+  # Active/Active VNG is on by Default
+  azure_enable_bgp           = true #Requires Active/Active
+  
   site_location = {
     city         = "New York City"
     country_code = "US"
     state_code   = "US-NY"
     timezone     = "America/New_York"
+  }
+
+  #Example Tags 
+  tags = {
+    builtwith  = "terraform"
+    repo = "https://github.com/catonetworks/terraform-cato-ipsec-aws"
+    example_key = "example_value"
+  }
+}
+
+
+# Example without BGP.
+module "ipsec-azure-nobgp" {
+  source                     = "catonetworks/ipsec-azure/cato"
+  token                      = var.token
+  account_id                 = var.account_id
+  az_location                = "<region>" #e.g. "Central US
+
+   # Whether or not the module should build the resource group.
+  build_azure_resource_group = true
+
+  # Whether or not the module should build the virtual network. If the vNet Already exists,
+  # Provide the name with azure_vnet_name = "<vnet-name>"
+  # if the Vnet Exists, we assume that there is already a subnet defined with the name of 
+  # GatewaySubnet as required by Azure.
+  build_azure_vng_vnet       = true
+
+  azure_resource_group_name  = "Your-RG-Name-Here"
+  azure_vng_vnet_range       = "10.0.2.0/24"
+  azure_vng_subnet_range     = "10.0.2.0/24"
+  site_name                  = "My-Azure-Cato-IPSec-Site-nobgp"
+  site_description           = "My Azure Cato IPSEC Site without BGP"
+  native_network_range       = "10.0.2.0/23"
+
+  # Allocated IPs used for this connection, obtained via CMA
+  # See https://support.catonetworks.com/hc/en-us/articles/4413273467153-Allocating-IP-Addresses-for-the-Account
+  primary_cato_pop_ip        = "x.x.x.x" # Your Primary Cato IP
+  secondary_cato_pop_ip      = "y.y.y.y" # Your Secondary Cato IP ID
+
+  # Since we're not doing BGP, we have to specify the encryption 
+  # Domain that needs to be passed over the tunnel:
+  cato_local_networks        = ["10.41.0.0/16", "10.254.254.0/24"]
+
+  # If Left blank, we will accept all networks, vs if Values are here, the SAs must match on both sides. 
+  azure_local_networks       = ["service1:10.0.2.0/24", "service2:10.0.3.0/24"]
+
+  downstream_bw    = 100
+  upstream_bw      = 100
+
+  # We're not using BGP in this example, so disable.
+  azure_enable_bgp = false
+
+  site_location = {
+    city         = "New York City"
+    country_code = "US"
+    state_code   = "US-NY"
+    timezone     = "America/New_York"
+  }
+
+  #Example Tags 
+  tags = {
+    builtwith  = "terraform"
+    repo = "https://github.com/catonetworks/terraform-cato-ipsec-aws"
+    example_key = "example_value"
   }
 }
 
@@ -139,17 +186,18 @@ Apache 2 Licensed. See [LICENSE](https://github.com/catonetworks/terraform-cato-
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.4 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.1.0 |
+| <a name="requirement_cato"></a> [cato](#requirement\_cato) | >= 0.0.24 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 4.1.0 |
-| <a name="provider_cato"></a> [cato](#provider\_cato) | n/a |
-| <a name="provider_null"></a> [null](#provider\_null) | n/a |
+| <a name="provider_cato"></a> [cato](#provider\_cato) | >= 0.0.24 |
 | <a name="provider_random"></a> [random](#provider\_random) | n/a |
+| <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 
 ## Modules
 
@@ -172,10 +220,11 @@ No modules.
 | [cato_bgp_peer.backup](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/resources/bgp_peer) | resource |
 | [cato_bgp_peer.primary](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/resources/bgp_peer) | resource |
 | [cato_ipsec_site.ipsec-site](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/resources/ipsec_site) | resource |
-| [null_resource.update_ipsec_site_details-bgp](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
-| [null_resource.update_ipsec_site_details-nobgp](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [cato_license.license](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/resources/license) | resource |
 | [random_password.shared_key_primary](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
 | [random_password.shared_key_secondary](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
+| [terraform_data.update_ipsec_site_details-bgp](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
+| [terraform_data.update_ipsec_site_details-nobgp](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [cato_allocatedIp.primary](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/data-sources/allocatedIp) | data source |
 | [cato_allocatedIp.secondary](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/data-sources/allocatedIp) | data source |
 
@@ -186,9 +235,6 @@ No modules.
 | <a name="input_account_id"></a> [account\_id](#input\_account\_id) | Cato account ID | `number` | n/a | yes |
 | <a name="input_az_location"></a> [az\_location](#input\_az\_location) | The Azure region where resources will be created | `string` | n/a | yes |
 | <a name="input_azure_bgp_asn"></a> [azure\_bgp\_asn](#input\_azure\_bgp\_asn) | The BGP Autonomous System Number for the Azure VPN Gateway. Required if azure\_enable\_bgp is true. | `number` | `65515` | no |
-| <a name="input_azure_bgp_peering_address"></a> [azure\_bgp\_peering\_address](#input\_azure\_bgp\_peering\_address) | The BGP peering IP address for the Azure VPN Gateway (APIPA). Required if azure\_enable\_bgp is true.<br/>  The valid range for the reserved APIPA address in Azure Public is from 169.254.21.0 to 169.254.22.255. | `string` | `"169.254.21.254"` | no |
-| <a name="input_azure_bgp_peering_address_0"></a> [azure\_bgp\_peering\_address\_0](#input\_azure\_bgp\_peering\_address\_0) | The first BGP peering IP for the Azure VPN Gateway's primary instance (APIPA). | `string` | `"169.254.21.1"` | no |
-| <a name="input_azure_bgp_peering_address_1"></a> [azure\_bgp\_peering\_address\_1](#input\_azure\_bgp\_peering\_address\_1) | The second BGP peering IP for the Azure VPN Gateway's secondary instance (APIPA). | `string` | `"169.254.22.1"` | no |
 | <a name="input_azure_enable_activeactive"></a> [azure\_enable\_activeactive](#input\_azure\_enable\_activeactive) | Whether to Enable Active/Active | `bool` | `true` | no |
 | <a name="input_azure_enable_bgp"></a> [azure\_enable\_bgp](#input\_azure\_enable\_bgp) | Enable BGP within Azure | `bool` | `false` | no |
 | <a name="input_azure_gateway_subnet_id"></a> [azure\_gateway\_subnet\_id](#input\_azure\_gateway\_subnet\_id) | The id of the gateway subnet | `string` | `null` | no |
@@ -200,7 +246,7 @@ No modules.
 | <a name="input_azure_primary_connection_ipsec_encryption"></a> [azure\_primary\_connection\_ipsec\_encryption](#input\_azure\_primary\_connection\_ipsec\_encryption) | The IPsec encryption algorithm (Phase 2). | `string` | `"AES256"` | no |
 | <a name="input_azure_primary_connection_ipsec_integrity"></a> [azure\_primary\_connection\_ipsec\_integrity](#input\_azure\_primary\_connection\_ipsec\_integrity) | The IPsec integrity algorithm (Phase 2). | `string` | `"SHA256"` | no |
 | <a name="input_azure_primary_connection_pfs_group"></a> [azure\_primary\_connection\_pfs\_group](#input\_azure\_primary\_connection\_pfs\_group) | The Perfect Forward Secrecy (PFS) group used in IPsec Phase 2. | `string` | `"PFS14"` | no |
-| <a name="input_azure_primary_connection_sa_lifetime"></a> [azure\_primary\_connection\_sa\_lifetime](#input\_azure\_primary\_connection\_sa\_lifetime) | The Security Association (SA) lifetime in seconds. | `number` | `27000` | no |
+| <a name="input_azure_primary_connection_sa_lifetime"></a> [azure\_primary\_connection\_sa\_lifetime](#input\_azure\_primary\_connection\_sa\_lifetime) | The Security Association (SA) lifetime in seconds. | `number` | `19800` | no |
 | <a name="input_azure_resource_group_name"></a> [azure\_resource\_group\_name](#input\_azure\_resource\_group\_name) | The name of the resource group | `string` | n/a | yes |
 | <a name="input_azure_secondary_connection_dh_group"></a> [azure\_secondary\_connection\_dh\_group](#input\_azure\_secondary\_connection\_dh\_group) | The Diffie-Hellman Group used in IKE Phase 1 for the secondary connection. | `string` | `"DHGroup14"` | no |
 | <a name="input_azure_secondary_connection_ike_encryption"></a> [azure\_secondary\_connection\_ike\_encryption](#input\_azure\_secondary\_connection\_ike\_encryption) | The IKE encryption algorithm (Phase 1) for the secondary connection. | `string` | `"AES256"` | no |
@@ -208,7 +254,7 @@ No modules.
 | <a name="input_azure_secondary_connection_ipsec_encryption"></a> [azure\_secondary\_connection\_ipsec\_encryption](#input\_azure\_secondary\_connection\_ipsec\_encryption) | The IPsec encryption algorithm (Phase 2) for the secondary connection. | `string` | `"AES256"` | no |
 | <a name="input_azure_secondary_connection_ipsec_integrity"></a> [azure\_secondary\_connection\_ipsec\_integrity](#input\_azure\_secondary\_connection\_ipsec\_integrity) | The IPsec integrity algorithm (Phase 2) for the secondary connection. | `string` | `"SHA256"` | no |
 | <a name="input_azure_secondary_connection_pfs_group"></a> [azure\_secondary\_connection\_pfs\_group](#input\_azure\_secondary\_connection\_pfs\_group) | The Perfect Forward Secrecy (PFS) group used in IPsec Phase 2 for the secondary connection. | `string` | `"PFS14"` | no |
-| <a name="input_azure_secondary_connection_sa_lifetime"></a> [azure\_secondary\_connection\_sa\_lifetime](#input\_azure\_secondary\_connection\_sa\_lifetime) | The Security Association (SA) lifetime in seconds for the secondary connection. | `number` | `27000` | no |
+| <a name="input_azure_secondary_connection_sa_lifetime"></a> [azure\_secondary\_connection\_sa\_lifetime](#input\_azure\_secondary\_connection\_sa\_lifetime) | The Security Association (SA) lifetime in seconds for the secondary connection. | `number` | `19800` | no |
 | <a name="input_azure_vnet_name"></a> [azure\_vnet\_name](#input\_azure\_vnet\_name) | The name of the Virtual Network | `string` | `null` | no |
 | <a name="input_azure_vng_subnet_range"></a> [azure\_vng\_subnet\_range](#input\_azure\_vng\_subnet\_range) | If we build a new VNET for the virtual network gateway, we will build a subnet and need a CIDR for the subnet | `string` | `null` | no |
 | <a name="input_azure_vng_vnet_range"></a> [azure\_vng\_vnet\_range](#input\_azure\_vng\_vnet\_range) | If we build a new VNET for the Virtual network gateway, we will need a cidr | `string` | `null` | no |
@@ -252,14 +298,14 @@ No modules.
 | <a name="input_primary_connection_shared_key"></a> [primary\_connection\_shared\_key](#input\_primary\_connection\_shared\_key) | Primary connection shared key | `string` | `null` | no |
 | <a name="input_primary_destination_type"></a> [primary\_destination\_type](#input\_primary\_destination\_type) | The destination type of the IPsec tunnel | `string` | `null` | no |
 | <a name="input_primary_pop_location_id"></a> [primary\_pop\_location\_id](#input\_primary\_pop\_location\_id) | Primary tunnel POP location ID | `string` | `null` | no |
-| <a name="input_primary_private_cato_ip"></a> [primary\_private\_cato\_ip](#input\_primary\_private\_cato\_ip) | Private IP address of the Cato side for the primary tunnel | `string` | n/a | yes |
-| <a name="input_primary_private_site_ip"></a> [primary\_private\_site\_ip](#input\_primary\_private\_site\_ip) | Private IP address of the site side for the primary tunnel | `string` | n/a | yes |
+| <a name="input_primary_private_cato_ip"></a> [primary\_private\_cato\_ip](#input\_primary\_private\_cato\_ip) | Private IP address of the Cato side for the primary tunnel | `string` | `null` | no |
+| <a name="input_primary_private_site_ip"></a> [primary\_private\_site\_ip](#input\_primary\_private\_site\_ip) | The BGP peering IP address for the Azure VPN Gateway (APIPA). Required if azure\_enable\_bgp is true.<br/>  The valid range for the reserved APIPA address in Azure Public is from 169.254.21.0 to 169.254.22.255. | `string` | `null` | no |
 | <a name="input_secondary_cato_pop_ip"></a> [secondary\_cato\_pop\_ip](#input\_secondary\_cato\_pop\_ip) | The IP address of the secondary Cato POP | `string` | n/a | yes |
 | <a name="input_secondary_connection_shared_key"></a> [secondary\_connection\_shared\_key](#input\_secondary\_connection\_shared\_key) | Secondary connection shared key | `string` | `null` | no |
 | <a name="input_secondary_destination_type"></a> [secondary\_destination\_type](#input\_secondary\_destination\_type) | The destination type of the IPsec tunnel | `string` | `null` | no |
 | <a name="input_secondary_pop_location_id"></a> [secondary\_pop\_location\_id](#input\_secondary\_pop\_location\_id) | Secondary tunnel POP location ID | `string` | `null` | no |
-| <a name="input_secondary_private_cato_ip"></a> [secondary\_private\_cato\_ip](#input\_secondary\_private\_cato\_ip) | Private IP address of the Cato side for the secondary tunnel | `string` | n/a | yes |
-| <a name="input_secondary_private_site_ip"></a> [secondary\_private\_site\_ip](#input\_secondary\_private\_site\_ip) | Private IP address of the site side for the secondary tunnel | `string` | n/a | yes |
+| <a name="input_secondary_private_cato_ip"></a> [secondary\_private\_cato\_ip](#input\_secondary\_private\_cato\_ip) | Private IP address of the Cato side for the secondary tunnel | `string` | `null` | no |
+| <a name="input_secondary_private_site_ip"></a> [secondary\_private\_site\_ip](#input\_secondary\_private\_site\_ip) | The BGP peering IP address for the Azure VPN Gateway (APIPA). Required if azure\_enable\_bgp is true.<br/>  The valid range for the reserved APIPA address in Azure Public is from 169.254.21.0 to 169.254.22.255. | `string` | `null` | no |
 | <a name="input_site_description"></a> [site\_description](#input\_site\_description) | Description of the IPSec site | `string` | n/a | yes |
 | <a name="input_site_location"></a> [site\_location](#input\_site\_location) | n/a | <pre>object({<br/>    city         = string<br/>    country_code = string<br/>    state_code   = string<br/>    timezone     = string<br/>  })</pre> | n/a | yes |
 | <a name="input_site_name"></a> [site\_name](#input\_site\_name) | Name of the IPSec site | `string` | n/a | yes |
@@ -270,5 +316,17 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_azure_resource_group_name"></a> [azure\_resource\_group\_name](#output\_azure\_resource\_group\_name) | The name of the Azure Resource Group created. |
+| <a name="output_azure_virtual_network_name"></a> [azure\_virtual\_network\_name](#output\_azure\_virtual\_network\_name) | The name of the Azure Virtual Network. |
+| <a name="output_cato_license_site"></a> [cato\_license\_site](#output\_cato\_license\_site) | n/a |
+| <a name="output_cato_site_id"></a> [cato\_site\_id](#output\_cato\_site\_id) | The ID of the created Cato IPsec site. |
+| <a name="output_primary_connection_shared_key"></a> [primary\_connection\_shared\_key](#output\_primary\_connection\_shared\_key) | The shared key for the primary VPN connection. This is sensitive. |
+| <a name="output_primary_local_network_gateway_name"></a> [primary\_local\_network\_gateway\_name](#output\_primary\_local\_network\_gateway\_name) | Name of the primary local network gateway representing the Cato PoP. |
+| <a name="output_secondary_connection_shared_key"></a> [secondary\_connection\_shared\_key](#output\_secondary\_connection\_shared\_key) | The shared key for the secondary VPN connection. This is sensitive. |
+| <a name="output_secondary_local_network_gateway_name"></a> [secondary\_local\_network\_gateway\_name](#output\_secondary\_local\_network\_gateway\_name) | Name of the secondary local network gateway representing the Cato PoP. |
+| <a name="output_vpn_gateway_id"></a> [vpn\_gateway\_id](#output\_vpn\_gateway\_id) | The ID of the VPN Gateway |
+| <a name="output_vpn_gateway_primary_public_ip"></a> [vpn\_gateway\_primary\_public\_ip](#output\_vpn\_gateway\_primary\_public\_ip) | The primary public IP address of the Azure VPN Gateway. |
+| <a name="output_vpn_gateway_secondary_public_ip"></a> [vpn\_gateway\_secondary\_public\_ip](#output\_vpn\_gateway\_secondary\_public\_ip) | The secondary public IP address of the Azure VPN Gateway (for active-active configurations). |
 <!-- END_TF_DOCS -->

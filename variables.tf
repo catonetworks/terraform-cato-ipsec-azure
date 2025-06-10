@@ -118,7 +118,7 @@ variable "azure_primary_connection_pfs_group" {
 variable "azure_primary_connection_sa_lifetime" {
   description = "The Security Association (SA) lifetime in seconds."
   type        = number
-  default     = 27000
+  default     = 19800
 }
 
 variable "azure_secondary_connection_ike_encryption" {
@@ -160,7 +160,7 @@ variable "azure_secondary_connection_pfs_group" {
 variable "azure_secondary_connection_sa_lifetime" {
   description = "The Security Association (SA) lifetime in seconds for the secondary connection."
   type        = number
-  default     = 27000
+  default     = 19800
 }
 
 variable "tags" {
@@ -189,14 +189,14 @@ variable "cato_bgp_asn" {
   default     = 65001
 }
 
-variable "azure_bgp_peering_address" {
-  description = <<EOT
-  The BGP peering IP address for the Azure VPN Gateway (APIPA). Required if azure_enable_bgp is true.
-  The valid range for the reserved APIPA address in Azure Public is from 169.254.21.0 to 169.254.22.255.
-  EOT
-  type        = string
-  default     = "169.254.21.254"
-}
+# variable "azure_bgp_peering_address" {
+#   description = <<EOT
+#   The BGP peering IP address for the Azure VPN Gateway (APIPA). Required if azure_enable_bgp is true.
+#   The valid range for the reserved APIPA address in Azure Public is from 169.254.21.0 to 169.254.22.255.
+#   EOT
+#   type        = string
+#   default     = "169.254.21.254"
+# }
 
 variable "cato_primary_bgp_metric" {
   description = "Metric for the primary Cato BGP peer to influence route preference."
@@ -211,18 +211,6 @@ variable "cato_secondary_bgp_metric" {
 }
 
 # --- BGP Specific Variables (only used if azure_enable_bgp is true) ---
-
-variable "azure_bgp_peering_address_0" {
-  description = "The first BGP peering IP for the Azure VPN Gateway's primary instance (APIPA)."
-  type        = string
-  default     = "169.254.21.1"
-}
-
-variable "azure_bgp_peering_address_1" {
-  description = "The second BGP peering IP for the Azure VPN Gateway's secondary instance (APIPA)."
-  type        = string
-  default     = "169.254.22.1"
-}
 
 variable "cato_primary_bgp_peer_name" {
   description = "Cato Primary BGP Peer Name"
@@ -371,11 +359,16 @@ variable "site_location" {
 variable "primary_private_cato_ip" {
   description = "Private IP address of the Cato side for the primary tunnel"
   type        = string
+  default     = null
 }
 
 variable "primary_private_site_ip" {
-  description = "Private IP address of the site side for the primary tunnel"
+  description = <<EOF
+  The BGP peering IP address for the Azure VPN Gateway (APIPA). Required if azure_enable_bgp is true.
+  The valid range for the reserved APIPA address in Azure Public is from 169.254.21.0 to 169.254.22.255.
+  EOF
   type        = string
+  default     = null
 }
 
 
@@ -399,11 +392,16 @@ variable "primary_pop_location_id" {
 variable "secondary_private_cato_ip" {
   description = "Private IP address of the Cato side for the secondary tunnel"
   type        = string
+  default     = null
 }
 
 variable "secondary_private_site_ip" {
-  description = "Private IP address of the site side for the secondary tunnel"
+  description = <<EOF
+  The BGP peering IP address for the Azure VPN Gateway (APIPA). Required if azure_enable_bgp is true.
+  The valid range for the reserved APIPA address in Azure Public is from 169.254.21.0 to 169.254.22.255.
+  EOF
   type        = string
+  default     = null
 }
 
 variable "secondary_destination_type" {
