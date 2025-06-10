@@ -234,8 +234,8 @@ resource "cato_ipsec_site" "ipsec-site" {
       tunnels = [
         {
           public_site_ip  = azurerm_public_ip.vpn_gateway_primary.ip_address
-          private_cato_ip = var.primary_private_cato_ip
-          private_site_ip = var.azure_bgp_peering_address_0
+          private_cato_ip = var.azure_enable_bgp ? var.primary_private_cato_ip : null
+          private_site_ip = var.azure_enable_bgp ? var.azure_bgp_peering_address_0 : null
 
           psk = var.primary_connection_shared_key == null ? random_password.shared_key_primary.result : var.primary_connection_shared_key
           last_mile_bw = {
@@ -252,8 +252,8 @@ resource "cato_ipsec_site" "ipsec-site" {
       tunnels = [
         {
           public_site_ip  = azurerm_public_ip.vpn_gateway_secondary[0].ip_address
-          private_cato_ip = var.secondary_private_cato_ip
-          private_site_ip = var.azure_bgp_peering_address_1
+          private_cato_ip = var.azure_enable_bgp ? var.secondary_private_cato_ip : null
+          private_site_ip = var.azure_enable_bgp ? var.azure_bgp_peering_address_1 : null
           psk             = var.secondary_connection_shared_key == null ? random_password.shared_key_secondary.result : var.secondary_connection_shared_key
           last_mile_bw = {
             downstream = var.downstream_bw
