@@ -35,5 +35,5 @@
 - Added Locals to simplify resource naming
 - Adjusted variable names to simplify understanding of which variable is for which environment 
 - Added CSP Tag handling to enable resource tagging 
-- Enabled Active/Active Virtual Network Gateway to ensure redundancy and resillency 
-- Added Variables for BGP and Non-BGP to support additional functions 
+- Enabled Active/Active Virtual Network Gateway to ensure redundancy and resiliency 
+- Added Variables for BGP and Non-BGP to support new functions 

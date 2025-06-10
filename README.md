@@ -85,7 +85,7 @@ module "ipsec-azure-bgp" {
   #Example Tags 
   tags = {
     builtwith  = "terraform"
-    repo = "https://github.com/catonetworks/terraform-cato-ipsec-aws"
+    repo = "https://github.com/catonetworks/terraform-cato-ipsec-azure"
     example_key = "example_value"
   }
 }
@@ -142,7 +142,7 @@ module "ipsec-azure-nobgp" {
   #Example Tags 
   tags = {
     builtwith  = "terraform"
-    repo = "https://github.com/catonetworks/terraform-cato-ipsec-aws"
+    repo = "https://github.com/catonetworks/terraform-cato-ipsec-azure"
     example_key = "example_value"
   }
 }
