@@ -275,10 +275,6 @@ resource "terraform_data" "update_ipsec_site_details-bgp" {
   depends_on = [cato_ipsec_site.ipsec-site]
   count      = var.azure_enable_bgp ? 1 : 0
 
-  lifecycle {
-    ignore_changes = all
-
-  }
   triggers_replace = [
     cato_ipsec_site.ipsec-site.id,
     var.cato_authMessage_integrity,
@@ -319,10 +315,6 @@ resource "terraform_data" "update_ipsec_site_details-nobgp" {
   #Null Resource has been replaced by "terraform_data"
   depends_on = [cato_ipsec_site.ipsec-site]
   count      = var.azure_enable_bgp ? 0 : 1
-
-  lifecycle {
-    ignore_changes = all
-  }
 
   triggers_replace = [
     cato_ipsec_site.ipsec-site.id,
