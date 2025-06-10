@@ -1,0 +1,22 @@
+{
+    "query": "mutation siteUpdateIpsecIkeV2SiteGeneralDetails($siteId: ID!, $updateIpsecIkeV2SiteGeneralDetailsInput: UpdateIpsecIkeV2SiteGeneralDetailsInput!, $accountId: ID!) { site(accountId: $accountId) { updateIpsecIkeV2SiteGeneralDetails(siteId: $siteId, input: $updateIpsecIkeV2SiteGeneralDetailsInput) { siteId localId } } }",
+    "variables": {
+      "accountId": ${account_id},
+      "siteId": "${site_id}",
+      "updateIpsecIkeV2SiteGeneralDetailsInput": {
+        "connectionMode": "${connection_mode}",
+        "initMessage": {
+          "dhGroup": "${init_dh_group}",
+          "cipher": "${init_cipher}",
+          "integrity": "${init_integrity}",
+          "prf": "${init_prf}"
+        },
+        "authMessage": {
+          "dhGroup": "${auth_dh_group}",
+          "cipher": "${auth_cipher}",
+          "integrity": "${auth_integrity}"
+        }
+      }
+    },
+    "operationName": "siteUpdateIpsecIkeV2SiteGeneralDetails"
+}
