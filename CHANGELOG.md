@@ -21,3 +21,19 @@
 
 ### Features
 - Fixed variable name for ipsec-site
+
+## 0.1.0 (2025-06-10)
+
+### Features
+- Refactor Module to Support both BGP and Non-BGP based routing 
+- Adjusted API Calls to Enable the configuration of all IPSec Attributes 
+- Updated API Call execution from null_resource to terraform_data enabling replacement based on changes to parameters
+- Enable conditional creation of VNG Vnet and VNG Subnets
+- Updated Readme to reflect changes 
+- Updated Outputs to reflect changes and added additional outputs 
+- Added Data Call to Cato API to get Cato IP ID 
+- Added Locals to simplify resource naming
+- Adjusted variable names to simplify understanding of which variable is for which environment 
+- Added CSP Tag handling to enable resource tagging 
+- Enabled Active/Active Virtual Network Gateway to ensure redundancy and resillency 
+- Added Variables for BGP and Non-BGP to support additional functions 
