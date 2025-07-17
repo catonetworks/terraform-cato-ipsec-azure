@@ -37,3 +37,10 @@
 - Added CSP Tag handling to enable resource tagging 
 - Enabled Active/Active Virtual Network Gateway to ensure redundancy and resiliency 
 - Added Variables for BGP and Non-BGP to support new functions 
+
+## 0.1.1 (2025-07-17)
+
+## Features 
+ - Updated to dynamically pull site location information from Azure Location 
+ - Version locked Cato provider to v0.0.30 or greater
+ - Version locked Terraform to v1.5 or greater

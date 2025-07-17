@@ -186,16 +186,16 @@ Apache 2 Licensed. See [LICENSE](https://github.com/catonetworks/terraform-cato-
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.4 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.1.0 |
-| <a name="requirement_cato"></a> [cato](#requirement\_cato) | >= 0.0.24 |
+| <a name="requirement_cato"></a> [cato](#requirement\_cato) | >= 0.0.30 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 4.1.0 |
-| <a name="provider_cato"></a> [cato](#provider\_cato) | >= 0.0.24 |
+| <a name="provider_cato"></a> [cato](#provider\_cato) | >= 0.0.30 |
 | <a name="provider_random"></a> [random](#provider\_random) | n/a |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 
@@ -227,6 +227,7 @@ No modules.
 | [terraform_data.update_ipsec_site_details-nobgp](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [cato_allocatedIp.primary](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/data-sources/allocatedIp) | data source |
 | [cato_allocatedIp.secondary](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/data-sources/allocatedIp) | data source |
+| [cato_siteLocation.site_location](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/data-sources/siteLocation) | data source |
 
 ## Inputs
 
@@ -307,7 +308,7 @@ No modules.
 | <a name="input_secondary_private_cato_ip"></a> [secondary\_private\_cato\_ip](#input\_secondary\_private\_cato\_ip) | The BGP peering IP address for the CatoPOP (APIPA). Required if azure\_enable\_bgp is true.<br/>  The valid range for the reserved APIPA address in Azure Public is from 169.254.21.0 to 169.254.22.255. | `string` | `null` | no |
 | <a name="input_secondary_private_site_ip"></a> [secondary\_private\_site\_ip](#input\_secondary\_private\_site\_ip) | The BGP peering IP address for the Azure VPN Gateway (APIPA). Required if azure\_enable\_bgp is true.<br/>  The valid range for the reserved APIPA address in Azure Public is from 169.254.21.0 to 169.254.22.255. | `string` | `null` | no |
 | <a name="input_site_description"></a> [site\_description](#input\_site\_description) | Description of the IPSec site | `string` | n/a | yes |
-| <a name="input_site_location"></a> [site\_location](#input\_site\_location) | n/a | <pre>object({<br/>    city         = string<br/>    country_code = string<br/>    state_code   = string<br/>    timezone     = string<br/>  })</pre> | n/a | yes |
+| <a name="input_site_location"></a> [site\_location](#input\_site\_location) | Site location which is used by the Cato Socket to connect to the closest Cato PoP. If not specified, the location will be derived from the Azure region dynamicaly. | <pre>object({<br/>    city         = string<br/>    country_code = string<br/>    state_code   = string<br/>    timezone     = string<br/>  })</pre> | <pre>{<br/>  "city": null,<br/>  "country_code": null,<br/>  "state_code": null,<br/>  "timezone": null<br/>}</pre> | no |
 | <a name="input_site_name"></a> [site\_name](#input\_site\_name) | Name of the IPSec site | `string` | n/a | yes |
 | <a name="input_site_type"></a> [site\_type](#input\_site\_type) | The type of the site | `string` | `"CLOUD_DC"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of Keys & Values to describe the infrastructure<br/>  Example: <br/>  { <br/>  terraform = "true"<br/>  built\_by = "Your Name"<br/>  } | `map(string)` | `{}` | no |
@@ -326,6 +327,7 @@ No modules.
 | <a name="output_primary_local_network_gateway_name"></a> [primary\_local\_network\_gateway\_name](#output\_primary\_local\_network\_gateway\_name) | Name of the primary local network gateway representing the Cato PoP. |
 | <a name="output_secondary_connection_shared_key"></a> [secondary\_connection\_shared\_key](#output\_secondary\_connection\_shared\_key) | The shared key for the secondary VPN connection. This is sensitive. |
 | <a name="output_secondary_local_network_gateway_name"></a> [secondary\_local\_network\_gateway\_name](#output\_secondary\_local\_network\_gateway\_name) | Name of the secondary local network gateway representing the Cato PoP. |
+| <a name="output_site_location"></a> [site\_location](#output\_site\_location) | n/a |
 | <a name="output_vpn_gateway_id"></a> [vpn\_gateway\_id](#output\_vpn\_gateway\_id) | The ID of the VPN Gateway |
 | <a name="output_vpn_gateway_primary_public_ip"></a> [vpn\_gateway\_primary\_public\_ip](#output\_vpn\_gateway\_primary\_public\_ip) | The primary public IP address of the Azure VPN Gateway. |
 | <a name="output_vpn_gateway_secondary_public_ip"></a> [vpn\_gateway\_secondary\_public\_ip](#output\_vpn\_gateway\_secondary\_public\_ip) | The secondary public IP address of the Azure VPN Gateway (for active-active configurations). |
