@@ -44,3 +44,8 @@
  - Updated to dynamically pull site location information from Azure Location 
  - Version locked Cato provider to v0.0.30 or greater
  - Version locked Terraform to v1.5 or greater
+
+## 0.1.2 (2025-07-17)
+
+### Features 
+- Fix Malformed SiteLocation.tf
