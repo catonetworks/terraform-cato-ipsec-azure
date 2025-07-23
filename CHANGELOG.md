@@ -49,3 +49,9 @@
 
 ### Features 
 - Fix Malformed SiteLocation.tf
+
+## 0.1.3 (2025-07-23)
+
+### Features 
+- Update Site Location to include Poland
+- Update Readme Example 
