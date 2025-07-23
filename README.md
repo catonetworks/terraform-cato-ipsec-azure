@@ -3,6 +3,7 @@
 Terraform module which creates an IPsec site in the Cato Management Application (CMA), and a primary and secondary IPsec tunnel from Azure to the Cato platform.
 
 ## NOTE
+- This module will look up the Cato Site Location information based on the Location of Azure specified.  If you would like to override this behavior, please leverage the below for help finding the correct values.
 - For help with finding exact sytax to match site location for city, state_name, country_name and timezone, please refer to the [cato_siteLocation data source](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/data-sources/siteLocation).
 - For help with finding a license id to assign, please refer to the [cato_licensingInfo data source](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/data-sources/licensingInfo).
 
@@ -75,12 +76,7 @@ module "ipsec-azure-bgp" {
   # Active/Active VNG is on by Default
   azure_enable_bgp           = true #Requires Active/Active
   
-  site_location = {
-    city         = "New York City"
-    country_code = "US"
-    state_code   = "US-NY"
-    timezone     = "America/New_York"
-  }
+# Site Location now derived from Azure Region
 
   #Example Tags 
   tags = {
@@ -132,12 +128,7 @@ module "ipsec-azure-nobgp" {
   # We're not using BGP in this example, so disable.
   azure_enable_bgp = false
 
-  site_location = {
-    city         = "New York City"
-    country_code = "US"
-    state_code   = "US-NY"
-    timezone     = "America/New_York"
-  }
+# Site Location now derived from Azure Region
 
   #Example Tags 
   tags = {
