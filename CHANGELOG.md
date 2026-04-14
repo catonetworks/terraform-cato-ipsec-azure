@@ -55,3 +55,16 @@
 ### Features 
 - Update Site Location to include Poland
 - Update Readme Example 
+
+## 0.1.3 (2025-07-23)
+
+### Features 
+- Update Site Location to include Poland
+- Update Readme Example 
+
+## 0.1.4 (2026-04-14)
+### Features
+- Updated version of provider adding in lastest SDK with updated ENUM values for accounSnapshot and license
+- Updated VPNGW to support zones required by Azure
+- Updated the siteLocation file to resolve all cities, statecodes localy without needing data source dependency 
+- Updated readme

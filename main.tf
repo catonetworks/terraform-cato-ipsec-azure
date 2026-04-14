@@ -30,6 +30,7 @@ resource "azurerm_public_ip" "vpn_gateway_primary" {
   resource_group_name = local.resource_group_name
   allocation_method   = "Static"
   sku                 = "Standard"
+  zones               = var.azure_primary_public_ip_zones
   tags                = var.tags
 }
 # Secondary Public IP in case we do BGP Active/Active
@@ -40,6 +41,7 @@ resource "azurerm_public_ip" "vpn_gateway_secondary" {
   resource_group_name = local.resource_group_name
   allocation_method   = "Static"
   sku                 = "Standard"
+  zones               = var.azure_secondary_public_ip_zones
   tags                = var.tags
 }
 
@@ -56,7 +58,7 @@ resource "azurerm_virtual_network_gateway" "vpn_gateway" {
   # If we Do BGP, we need to be active / active and the SKU needs to support this. 
   active_active = var.azure_enable_activeactive
   enable_bgp    = var.azure_enable_bgp
-  sku           = var.azure_enable_bgp || var.azure_enable_activeactive ? "VpnGw2" : "VpnGw1"
+  sku           = var.azure_enable_bgp || var.azure_enable_activeactive ? "VpnGw2AZ" : "VpnGw1AZ"
 
   # Primary IP configuration, always created
   ip_configuration {

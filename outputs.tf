@@ -16,6 +16,18 @@ output "azure_virtual_network_name" {
   value       = local.vnet_name
 }
 
+# Output for the Azure Virtual Network ID (for VM modules)
+output "vnet_id" {
+  description = "The ID of the Azure Virtual Network."
+  value       = var.build_azure_vng_vnet ? azurerm_virtual_network.vng_virtual_network[0].id : null
+}
+
+# Alias for resource_group_name (for VM modules)
+output "resource_group_name" {
+  description = "The name of the Azure Resource Group."
+  value       = local.resource_group_name
+}
+
 # Output for the Primary Public IP of the Azure VPN Gateway
 output "vpn_gateway_primary_public_ip" {
   description = "The primary public IP address of the Azure VPN Gateway."

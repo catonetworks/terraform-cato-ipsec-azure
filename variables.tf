@@ -620,9 +620,9 @@ variable "cato_connectionMode" {
 
 variable "cato_identificationType" {
   description = <<EOF
-  Cato Identification Type.  The authentication identification type used for SA authentication. When using “BIDIRECTIONAL”, it is set to “IPv4” by default. 
-  Other methods are available in Responder mode only. 
-  Valid Options are: 
+  Cato Identification Type.  The authentication identification type used for SA authentication. When using "BIDIRECTIONAL", it is set to "IPv4" by default.
+  Other methods are available in Responder mode only.
+  Valid Options are:
     EMAIL
     FQDN
     IPV4
@@ -631,4 +631,16 @@ variable "cato_identificationType" {
     EOF
   type        = string
   default     = "IPV4"
+}
+
+variable "azure_primary_public_ip_zones" {
+  description = "Availability zones for the primary VPN Gateway public IP. Required for AZ-enabled VPN Gateway SKUs."
+  type        = list(string)
+  default     = ["1", "2", "3"]
+}
+
+variable "azure_secondary_public_ip_zones" {
+  description = "Availability zones for the secondary VPN Gateway public IP. Required for AZ-enabled VPN Gateway SKUs."
+  type        = list(string)
+  default     = ["1", "2", "3"]
 }

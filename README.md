@@ -12,6 +12,19 @@ Terraform module which creates an IPsec site in the Cato Management Application 
 Example module usage:
 
 ```hcl
+terraform {
+  required_providers {
+    cato = {
+      source = "catonetworks/cato"
+      version = ">= 0.0.69"
+    }
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 4.33"
+    }
+  }
+}
+
 variable "baseurl" {}
 variable "token" {}
 variable "account_id" {}
@@ -239,6 +252,7 @@ No modules.
 | <a name="input_azure_primary_connection_ipsec_integrity"></a> [azure\_primary\_connection\_ipsec\_integrity](#input\_azure\_primary\_connection\_ipsec\_integrity) | The IPsec integrity algorithm (Phase 2). Default: SHA256 | `string` | `"SHA256"` | no |
 | <a name="input_azure_primary_connection_pfs_group"></a> [azure\_primary\_connection\_pfs\_group](#input\_azure\_primary\_connection\_pfs\_group) | The Perfect Forward Secrecy (PFS) group used in IPsec Phase 2. Default: PFS14 (Because Azure doesn't support PFS15) | `string` | `"PFS14"` | no |
 | <a name="input_azure_primary_connection_sa_lifetime"></a> [azure\_primary\_connection\_sa\_lifetime](#input\_azure\_primary\_connection\_sa\_lifetime) | The Security Association (SA) lifetime in seconds.  Default: 19800 | `number` | `19800` | no |
+| <a name="input_azure_primary_public_ip_zones"></a> [azure\_primary\_public\_ip\_zones](#input\_azure\_primary\_public\_ip\_zones) | Availability zones for the primary VPN Gateway public IP. Required for AZ-enabled VPN Gateway SKUs. | `list(string)` | <pre>[<br/>  "1",<br/>  "2",<br/>  "3"<br/>]</pre> | no |
 | <a name="input_azure_resource_group_name"></a> [azure\_resource\_group\_name](#input\_azure\_resource\_group\_name) | The name of the Azure resource group to build / use | `string` | n/a | yes |
 | <a name="input_azure_secondary_connection_dh_group"></a> [azure\_secondary\_connection\_dh\_group](#input\_azure\_secondary\_connection\_dh\_group) | The Diffie-Hellman Group used in IKE Phase 1 for the secondary connection. Default: DHGroup14 (Because Azure doesn't support DHGroup15) | `string` | `"DHGroup14"` | no |
 | <a name="input_azure_secondary_connection_ike_encryption"></a> [azure\_secondary\_connection\_ike\_encryption](#input\_azure\_secondary\_connection\_ike\_encryption) | The IKE encryption algorithm (Phase 1) for the secondary connection. Default: AES256 | `string` | `"AES256"` | no |
@@ -247,6 +261,7 @@ No modules.
 | <a name="input_azure_secondary_connection_ipsec_integrity"></a> [azure\_secondary\_connection\_ipsec\_integrity](#input\_azure\_secondary\_connection\_ipsec\_integrity) | The IPsec integrity algorithm (Phase 2) for the secondary connection. Default: SHA256 | `string` | `"SHA256"` | no |
 | <a name="input_azure_secondary_connection_pfs_group"></a> [azure\_secondary\_connection\_pfs\_group](#input\_azure\_secondary\_connection\_pfs\_group) | The Perfect Forward Secrecy (PFS) group used in IPsec Phase 2 for the secondary connection. Default: PFS14 (Because Azure doesn't support PFS15) | `string` | `"PFS14"` | no |
 | <a name="input_azure_secondary_connection_sa_lifetime"></a> [azure\_secondary\_connection\_sa\_lifetime](#input\_azure\_secondary\_connection\_sa\_lifetime) | The Security Association (SA) lifetime in seconds for the secondary connection. Default: 19800 | `number` | `19800` | no |
+| <a name="input_azure_secondary_public_ip_zones"></a> [azure\_secondary\_public\_ip\_zones](#input\_azure\_secondary\_public\_ip\_zones) | Availability zones for the secondary VPN Gateway public IP. Required for AZ-enabled VPN Gateway SKUs. | `list(string)` | <pre>[<br/>  "1",<br/>  "2",<br/>  "3"<br/>]</pre> | no |
 | <a name="input_azure_vnet_name"></a> [azure\_vnet\_name](#input\_azure\_vnet\_name) | The name of the Virtual Network to Build / Use | `string` | `null` | no |
 | <a name="input_azure_vng_subnet_range"></a> [azure\_vng\_subnet\_range](#input\_azure\_vng\_subnet\_range) | CIDR range for the Subnet in the Virtual Network, if we're building it. | `string` | `null` | no |
 | <a name="input_azure_vng_vnet_range"></a> [azure\_vng\_vnet\_range](#input\_azure\_vng\_vnet\_range) | CIDR range for the Virtual Network, if we're building it. | `string` | `null` | no |
@@ -258,7 +273,7 @@ No modules.
 | <a name="input_cato_authMessage_integrity"></a> [cato\_authMessage\_integrity](#input\_cato\_authMessage\_integrity) | Cato Phase 2 Hashing Algorithm.  The algorithm used to verify the integrity and authenticity of IPsec packets<br/>    Valid Options are: <br/>    AUTOMATIC<br/>    MD5<br/>    NONE<br/>    SHA1<br/>    SHA256<br/>    SHA384<br/>    SHA512<br/>    Default to AUTOMATIC | `string` | `"AUTOMATIC"` | no |
 | <a name="input_cato_bgp_asn"></a> [cato\_bgp\_asn](#input\_cato\_bgp\_asn) | The BGP Autonomous System Number for the Cato PoPs. Required if azure\_enable\_bgp is true. | `number` | `65001` | no |
 | <a name="input_cato_connectionMode"></a> [cato\_connectionMode](#input\_cato\_connectionMode) | Cato Connection Mode.  Determines the protocol for establishing the Security Association (SA) Tunnel. <br/>  Valid values are: Responder-Only Mode: Cato Cloud only responds to incoming requests by the initiator (e.g. a Firewall device) to establish a security association. <br/>  Bidirectional Mode: Both Cato Cloud and the peer device on customer site can initiate the IPSec SA establishment.<br/>  Valid Options are: <br/>    BIDIRECTIONAL<br/>    RESPONDER\_ONLY<br/>    Default to BIDIRECTIONAL | `string` | `"BIDIRECTIONAL"` | no |
-| <a name="input_cato_identificationType"></a> [cato\_identificationType](#input\_cato\_identificationType) | Cato Identification Type.  The authentication identification type used for SA authentication. When using “BIDIRECTIONAL”, it is set to “IPv4” by default. <br/>  Other methods are available in Responder mode only. <br/>  Valid Options are: <br/>    EMAIL<br/>    FQDN<br/>    IPV4<br/>    KEY\_ID<br/>    Default to IPV4 | `string` | `"IPV4"` | no |
+| <a name="input_cato_identificationType"></a> [cato\_identificationType](#input\_cato\_identificationType) | Cato Identification Type.  The authentication identification type used for SA authentication. When using "BIDIRECTIONAL", it is set to "IPv4" by default.<br/>  Other methods are available in Responder mode only.<br/>  Valid Options are:<br/>    EMAIL<br/>    FQDN<br/>    IPV4<br/>    KEY\_ID<br/>    Default to IPV4 | `string` | `"IPV4"` | no |
 | <a name="input_cato_initMessage_cipher"></a> [cato\_initMessage\_cipher](#input\_cato\_initMessage\_cipher) | Cato Phase 1 ciphers.  The SA tunnel encryption method. Note: For situations where GCM isn’t supported for the INIT phase, <br/>  we recommend that you use the CBC algorithm for the INIT phase, and GCM for AUTH<br/>  Valid options are: <br/>    AES\_CBC\_128<br/>    AES\_CBC\_256<br/>    AES\_GCM\_128<br/>    AES\_GCM\_256<br/>    AUTOMATIC<br/>    DES3\_CBC<br/>    NONE<br/>    Default to AUTOMATIC | `string` | `"AUTOMATIC"` | no |
 | <a name="input_cato_initMessage_dhGroup"></a> [cato\_initMessage\_dhGroup](#input\_cato\_initMessage\_dhGroup) | Cato Phase 1 DHGroup.  The Diffie-Hellman Group. The first number is the DH-group number, and the second number is <br/>   the corresponding prime modulus size in bits<br/>   Valid Options are: <br/>    AUTOMATIC<br/>    DH\_14\_MODP2048<br/>    DH\_15\_MODP3072<br/>    DH\_16\_MODP4096<br/>    DH\_19\_ECP256<br/>    DH\_2\_MODP1024<br/>    DH\_20\_ECP384<br/>    DH\_21\_ECP521<br/>    DH\_5\_MODP1536<br/>    NONE<br/>    Default to DH\_14\_MODP2048 | `string` | `"DH_14_MODP2048"` | no |
 | <a name="input_cato_initMessage_integrity"></a> [cato\_initMessage\_integrity](#input\_cato\_initMessage\_integrity) | Cato Phase 1 Hashing Algorithm.  The algorithm used to verify the integrity and authenticity of IPsec packets<br/>   Valid Options are: <br/>    AUTOMATIC<br/>    MD5<br/>    NONE<br/>    SHA1<br/>    SHA256<br/>    SHA384<br/>    SHA512<br/>    Default to AUTOMATIC | `string` | `"AUTOMATIC"` | no |
