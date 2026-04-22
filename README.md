@@ -16,7 +16,7 @@ terraform {
   required_providers {
     cato = {
       source = "catonetworks/cato"
-      version = ">= 0.0.69"
+      version = ">= 0.0.70"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -159,8 +159,8 @@ You must first [allocate two Cato IPs](https://support.catonetworks.com/hc/en-us
 
 ```bash
 $ pip3 install catocli
-$ export CATO_TOKEN="your-api-token-here"
-$ export CATO_ACCOUNT_ID="your-account-id"
+$ export TF_VAR_CATO_TOKEN="your-api-token-here"
+$ export TF_VAR_CATO_ACCOUNT_ID="your-account-id"
 $ catocli entity allocatedIP list
 ```
 
@@ -170,8 +170,8 @@ For more information on site_location syntax, use the [Cato CLI](https://github.
 
 ```bash
 $ pip3 install catocli
-$ export CATO_TOKEN="your-api-token-here"
-$ export CATO_ACCOUNT_ID="your-account-id"
+$ export TF_VAR_CATO_TOKEN="your-api-token-here"
+$ export TF_VAR_CATO_ACCOUNT_ID="your-account-id"
 $ catocli query siteLocation -h
 $ catocli query siteLocation '{"filters":[{"search": "San Diego","field":"city","operation":"exact"}]}' -p
 ```
@@ -189,17 +189,17 @@ Apache 2 Licensed. See [LICENSE](https://github.com/catonetworks/terraform-cato-
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5 |
 | <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | >= 4.1.0 |
-| <a name="requirement_cato"></a> [cato](#requirement\_cato) | >= 0.0.30 |
+| <a name="requirement_cato"></a> [cato](#requirement\_cato) | >= 0.0.70 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | >= 4.1.0 |
-| <a name="provider_cato"></a> [cato](#provider\_cato) | >= 0.0.30 |
+| <a name="provider_cato"></a> [cato](#provider\_cato) | >= 0.0.70 |
 | <a name="provider_random"></a> [random](#provider\_random) | n/a |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 
@@ -210,7 +210,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [azurerm_local_network_gateway.cato_pop_primary](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/local_network_gateway) | resource |
 | [azurerm_local_network_gateway.cato_pop_secondary](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/local_network_gateway) | resource |
 | [azurerm_public_ip.vpn_gateway_primary](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/public_ip) | resource |
@@ -231,12 +231,11 @@ No modules.
 | [terraform_data.update_ipsec_site_details-nobgp](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [cato_allocatedIp.primary](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/data-sources/allocatedIp) | data source |
 | [cato_allocatedIp.secondary](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/data-sources/allocatedIp) | data source |
-| [cato_siteLocation.site_location](https://registry.terraform.io/providers/catonetworks/cato/latest/docs/data-sources/siteLocation) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_account_id"></a> [account\_id](#input\_account\_id) | Cato account ID | `number` | n/a | yes |
 | <a name="input_az_location"></a> [az\_location](#input\_az\_location) | The Azure region where resources will be created | `string` | n/a | yes |
 | <a name="input_azure_bgp_asn"></a> [azure\_bgp\_asn](#input\_azure\_bgp\_asn) | The BGP Autonomous System Number for the Azure VPN Gateway. Required if azure\_enable\_bgp is true. | `number` | `65515` | no |
@@ -324,16 +323,18 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_azure_resource_group_name"></a> [azure\_resource\_group\_name](#output\_azure\_resource\_group\_name) | The name of the Azure Resource Group created. |
 | <a name="output_azure_virtual_network_name"></a> [azure\_virtual\_network\_name](#output\_azure\_virtual\_network\_name) | The name of the Azure Virtual Network. |
 | <a name="output_cato_license_site"></a> [cato\_license\_site](#output\_cato\_license\_site) | n/a |
 | <a name="output_cato_site_id"></a> [cato\_site\_id](#output\_cato\_site\_id) | The ID of the created Cato IPsec site. |
 | <a name="output_primary_connection_shared_key"></a> [primary\_connection\_shared\_key](#output\_primary\_connection\_shared\_key) | The shared key for the primary VPN connection. This is sensitive. |
 | <a name="output_primary_local_network_gateway_name"></a> [primary\_local\_network\_gateway\_name](#output\_primary\_local\_network\_gateway\_name) | Name of the primary local network gateway representing the Cato PoP. |
+| <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | The name of the Azure Resource Group. |
 | <a name="output_secondary_connection_shared_key"></a> [secondary\_connection\_shared\_key](#output\_secondary\_connection\_shared\_key) | The shared key for the secondary VPN connection. This is sensitive. |
 | <a name="output_secondary_local_network_gateway_name"></a> [secondary\_local\_network\_gateway\_name](#output\_secondary\_local\_network\_gateway\_name) | Name of the secondary local network gateway representing the Cato PoP. |
-| <a name="output_site_location"></a> [site\_location](#output\_site\_location) | n/a |
+| <a name="output_site_location"></a> [site\_location](#output\_site\_location) | The resolved site location from Azure region mapping |
+| <a name="output_vnet_id"></a> [vnet\_id](#output\_vnet\_id) | The ID of the Azure Virtual Network. |
 | <a name="output_vpn_gateway_id"></a> [vpn\_gateway\_id](#output\_vpn\_gateway\_id) | The ID of the VPN Gateway |
 | <a name="output_vpn_gateway_primary_public_ip"></a> [vpn\_gateway\_primary\_public\_ip](#output\_vpn\_gateway\_primary\_public\_ip) | The primary public IP address of the Azure VPN Gateway. |
 | <a name="output_vpn_gateway_secondary_public_ip"></a> [vpn\_gateway\_secondary\_public\_ip](#output\_vpn\_gateway\_secondary\_public\_ip) | The secondary public IP address of the Azure VPN Gateway (for active-active configurations). |
