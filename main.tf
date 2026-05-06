@@ -57,7 +57,7 @@ resource "azurerm_virtual_network_gateway" "vpn_gateway" {
 
   # If we Do BGP, we need to be active / active and the SKU needs to support this. 
   active_active = var.azure_enable_activeactive
-  enable_bgp    = var.azure_enable_bgp
+  bgp_enabled   = var.azure_enable_bgp
   sku           = var.azure_enable_bgp || var.azure_enable_activeactive ? "VpnGw2AZ" : "VpnGw1AZ"
 
   # Primary IP configuration, always created
@@ -163,7 +163,7 @@ resource "azurerm_virtual_network_gateway_connection" "cato_connection_primary" 
   local_network_gateway_id   = azurerm_local_network_gateway.cato_pop_primary.id
 
   # --- CONDITIONAL BGP ---
-  enable_bgp = var.azure_enable_bgp
+  bgp_enabled = var.azure_enable_bgp
   # --- END CONDITIONAL BGP ---
 
   ipsec_policy {
@@ -197,7 +197,7 @@ resource "azurerm_virtual_network_gateway_connection" "cato_connection_secondary
   local_network_gateway_id   = azurerm_local_network_gateway.cato_pop_secondary.id
 
   # --- CONDITIONAL BGP ---
-  enable_bgp = var.azure_enable_bgp
+  bgp_enabled = var.azure_enable_bgp
   # --- END CONDITIONAL BGP ---
 
   ipsec_policy {

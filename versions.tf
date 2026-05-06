@@ -6,7 +6,7 @@ terraform {
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 4.1.0"
+      version = ">= 4.71.0"
     }
   }
   required_version = ">= 1.5"
